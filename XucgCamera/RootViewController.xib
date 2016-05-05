@@ -51,12 +51,26 @@
                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="U9b-8e-fk8">
                     <rect key="frame" x="30" y="170" width="540" height="314"/>
                 </imageView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="NEt-b5-8Nz">
+                    <rect key="frame" x="519" y="55" width="51" height="30"/>
+                    <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="51" id="Fr7-10-Vbt"/>
+                        <constraint firstAttribute="height" constant="30" id="hqe-v2-RrW"/>
+                    </constraints>
+                    <state key="normal" title="切换"/>
+                    <connections>
+                        <action selector="switchButtonAction:" destination="-1" eventType="touchUpInside" id="pTk-Uv-fhI"/>
+                    </connections>
+                </button>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
             <constraints>
                 <constraint firstAttribute="bottom" secondItem="k38-pE-zz0" secondAttribute="bottom" constant="36" id="1QU-Hd-gSX"/>
                 <constraint firstItem="k38-pE-zz0" firstAttribute="top" secondItem="U9b-8e-fk8" secondAttribute="bottom" constant="50" id="1d2-kx-m1r"/>
                 <constraint firstItem="FKg-OC-4yI" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="20" id="8cj-ey-tVs"/>
+                <constraint firstAttribute="trailing" secondItem="NEt-b5-8Nz" secondAttribute="trailing" constant="30" id="9Hr-OP-lIO"/>
+                <constraint firstItem="NEt-b5-8Nz" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="55" id="BNd-VB-Jwv"/>
                 <constraint firstAttribute="trailing" secondItem="k38-pE-zz0" secondAttribute="trailing" constant="30" id="RU0-JA-ccb"/>
                 <constraint firstItem="FKg-OC-4yI" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="RcO-gz-U8X"/>
                 <constraint firstAttribute="bottom" secondItem="Klv-Cf-dYl" secondAttribute="bottom" constant="35" id="Siy-J8-5D1"/>

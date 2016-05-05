@@ -18,6 +18,7 @@
 
 - (IBAction)cameraButtonAction:(UIButton *)sender;
 - (IBAction)takeButtonAction:(UIButton *)sender;
+- (IBAction)switchButtonAction:(UIButton *)sender;
 
 @end
 
@@ -53,6 +54,10 @@
     UIImage *snapShot = [self.xucgCamera takePicture];
     
     [_picView setImage:snapShot];
+}
+
+- (IBAction)switchButtonAction:(UIButton *)sender {
+    [self.xucgCamera switchCamera];
 }
 
 @end

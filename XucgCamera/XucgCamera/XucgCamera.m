@@ -13,7 +13,6 @@
 @interface XucgCamera () <AVCaptureVideoDataOutputSampleBufferDelegate>
 
 @property (nonatomic, strong) AVCaptureSession           *captureSession;
-@property (nonatomic, strong) AVCaptureDevice            *captureDevice;
 @property (nonatomic, strong) UIImage                    *capturedImage;
 
 @end
@@ -23,9 +22,9 @@
 -(instancetype) init {
     self = [super init];
     if (self) {
-        // 初始化设备（摄像头）
-        self.captureDevice = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
-        AVCaptureDeviceInput *captureInput = [AVCaptureDeviceInput deviceInputWithDevice:self.captureDevice error:nil];
+        // 初始化设备（默认为后摄像头）
+        AVCaptureDevice *backCamera = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
+        AVCaptureDeviceInput *captureInput = [AVCaptureDeviceInput deviceInputWithDevice:backCamera error:nil];
         
         // 设置输出属性
         AVCaptureVideoDataOutput *captureOutput = [[AVCaptureVideoDataOutput alloc] init];
@@ -36,12 +35,6 @@
         dispatch_queue_t cameraQueue;
         cameraQueue = dispatch_queue_create("com.xucg.camera", NULL);
         [captureOutput setSampleBufferDelegate:self queue:cameraQueue];
-        
-        // 设置真彩色
-        NSString *key = (NSString*)kCVPixelBufferPixelFormatTypeKey;
-        NSNumber *value = [NSNumber numberWithUnsignedInt:kCVPixelFormatType_32BGRA];
-        NSDictionary* videoSettings = [NSDictionary dictionaryWithObject:value forKey:key];
-        [captureOutput setVideoSettings:videoSettings];
         
         self.captureSession = [[AVCaptureSession alloc] init];
         self.captureSession.sessionPreset = AVCaptureSessionPresetHigh;
@@ -58,7 +51,20 @@
     return self;
 }
 
-- (void)captureOutput:(AVCaptureOutput *)captureOutput
+-(AVCaptureDevice*) getCameraWithPosition:(AVCaptureDevicePosition)position {
+    AVCaptureDevicePosition devicePosition = (AVCaptureDevicePosition)position;
+    
+    NSArray *cameraArray = [AVCaptureDevice devicesWithMediaType:AVMediaTypeVideo];
+    for (AVCaptureDevice *curCamera in cameraArray) {
+        if ([curCamera position] == devicePosition) {
+            return curCamera;
+        }
+    }
+    
+    return cameraArray[0];
+}
+
+-(void) captureOutput:(AVCaptureOutput *)captureOutput
 didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
        fromConnection:(AVCaptureConnection *)connection {
     
@@ -91,6 +97,30 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     if ([self.delegate respondsToSelector:@selector(didOutputSampleBuffer:)]) {
         [self.delegate didOutputSampleBuffer:sampleBuffer];
     }
+}
+
+-(void) switchCamera {
+    _cameraPosition = !_cameraPosition;
+    
+    [self.captureSession beginConfiguration];
+    
+    // 先删除现在的camera
+    AVCaptureInput *currentCameraInput = [self.captureSession.inputs objectAtIndex:0];
+    [self.captureSession removeInput:currentCameraInput];
+    
+    // 找到对应的摄像头
+    AVCaptureDevice *newCamera = nil;
+    if (_cameraPosition == XucgCameraPositionBack) {
+        newCamera = [self getCameraWithPosition:AVCaptureDevicePositionBack];
+    } else {
+        newCamera = [self getCameraWithPosition:AVCaptureDevicePositionFront];
+    }
+    
+    // 添加新摄像头到session里
+    AVCaptureDeviceInput *newVideoInput = [[AVCaptureDeviceInput alloc] initWithDevice:newCamera error:nil];
+    [self.captureSession addInput:newVideoInput];
+    
+    [self.captureSession commitConfiguration];
 }
 
 -(void) startCamera {
