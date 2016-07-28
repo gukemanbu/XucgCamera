@@ -112,10 +112,8 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
     AVCaptureDevice *newCamera = nil;
     if (_cameraPosition == XucgCameraPositionBack) {
         newCamera = [self getCameraWithPosition:AVCaptureDevicePositionBack];
-        _previewView.transform = CGAffineTransformMakeScale(1, 1);
     } else {
         newCamera = [self getCameraWithPosition:AVCaptureDevicePositionFront];
-        _previewView.transform = CGAffineTransformMakeScale(-1, 1);
     }
     
     // 添加新摄像头到session里
@@ -136,84 +134,7 @@ didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer
 }
 
 -(UIImage*) takePicture {
-    UIImage *snapImage = [self.capturedImage copy];
-    return [self fixImageOrientation:snapImage];
-}
-
-- (UIImage*)fixImageOrientation:(UIImage*)srcImage {
-    
-    // No-op if the orientation is already correct
-    if (srcImage.imageOrientation == UIImageOrientationUp) return srcImage;
-    
-    // We need to calculate the proper transformation to make the image upright.
-    // We do it in 2 steps: Rotate if Left/Right/Down, and then flip if Mirrored.
-    CGAffineTransform transform = CGAffineTransformIdentity;
-    
-    switch (srcImage.imageOrientation) {
-        case UIImageOrientationDown:
-        case UIImageOrientationDownMirrored:
-            transform = CGAffineTransformTranslate(transform, srcImage.size.width, srcImage.size.height);
-            transform = CGAffineTransformRotate(transform, M_PI);
-            break;
-            
-        case UIImageOrientationLeft:
-        case UIImageOrientationLeftMirrored:
-            transform = CGAffineTransformTranslate(transform, srcImage.size.width, 0);
-            transform = CGAffineTransformRotate(transform, M_PI_2);
-            break;
-            
-        case UIImageOrientationRight:
-        case UIImageOrientationRightMirrored:
-            transform = CGAffineTransformTranslate(transform, 0, srcImage.size.height);
-            transform = CGAffineTransformRotate(transform, -M_PI_2);
-            break;
-        default:
-            break;
-    }
-    
-    switch (srcImage.imageOrientation) {
-        case UIImageOrientationUpMirrored:
-        case UIImageOrientationDownMirrored:
-            transform = CGAffineTransformTranslate(transform, srcImage.size.width, 0);
-            transform = CGAffineTransformScale(transform, -1, 1);
-            break;
-            
-        case UIImageOrientationLeftMirrored:
-        case UIImageOrientationRightMirrored:
-            transform = CGAffineTransformTranslate(transform, srcImage.size.height, 0);
-            transform = CGAffineTransformScale(transform, -1, 1);
-            break;
-        default:
-            break;
-    }
-    
-    // Now we draw the underlying CGImage into a new context, applying the transform
-    // calculated above.
-    CGContextRef ctx = CGBitmapContextCreate(NULL, srcImage.size.width, srcImage.size.height,
-                                             CGImageGetBitsPerComponent(srcImage.CGImage), 0,
-                                             CGImageGetColorSpace(srcImage.CGImage),
-                                             CGImageGetBitmapInfo(srcImage.CGImage));
-    CGContextConcatCTM(ctx, transform);
-    switch (srcImage.imageOrientation) {
-        case UIImageOrientationLeft:
-        case UIImageOrientationLeftMirrored:
-        case UIImageOrientationRight:
-        case UIImageOrientationRightMirrored:
-            // Grr...
-            CGContextDrawImage(ctx, CGRectMake(0,0,srcImage.size.height,srcImage.size.width), srcImage.CGImage);
-            break;
-            
-        default:
-            CGContextDrawImage(ctx, CGRectMake(0,0,srcImage.size.width,srcImage.size.height), srcImage.CGImage);
-            break;
-    }
-    
-    // And now we just create a new UIImage from the drawing context
-    CGImageRef cgimg = CGBitmapContextCreateImage(ctx);
-    UIImage *img = [UIImage imageWithCGImage:cgimg];
-    CGContextRelease(ctx);
-    CGImageRelease(cgimg);
-    return img;
+    return [self.capturedImage copy];
 }
 
 @end
